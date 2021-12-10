@@ -1,25 +1,29 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{near_bindgen, env, setup_alloc, PanicOnDefault, AccountId};
-use near_sdk::collections::UnorderedMap;
+use near_sdk::{near_bindgen, env, setup_alloc, AccountId};
+use near_sdk::serde::{Serialize, Deserialize};
+use near_sdk::collections::{UnorderedMap};
 
 setup_alloc!();
 
 #[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
+#[derive(BorshDeserialize, BorshSerialize)]
 pub struct GuildsPlatform {
     guilds: UnorderedMap<String, Guild>,
 }
 
+//Initializing the contract
+impl Default for GuildsPlatform {
+    fn default() -> Self {
+      Self {
+        guilds: UnorderedMap::new(b"g".to_vec()),
+      }
+    }
+  }
+
 #[near_bindgen]
 impl GuildsPlatform {
-    #[init]
-    //Initializing Unordered Map
-    pub fn new() -> Self {
-        Self {
-            guilds: UnorderedMap::new(b"g".to_vec()),
-        }
-    }
-
+    //We require (as of now) every parameter. 
+    //Some of them could be optional in the future if we implement editing.
     pub fn create_guild(
         &mut self, 
         slug: String,
@@ -52,13 +56,24 @@ impl GuildsPlatform {
             ticker: String::from(&ticker),
             logo: String::from(&logo),
             contract_str: String::from(&contract_str),
-            //TO DO: cambiar prefijo a uno generado
-            members: UnorderedMap::new(b"m".to_vec()),
+            //Se genera el prefijo con el slug, que es el dato único.
+            members: Vec::new(),
         };
 
         self.guilds.insert(&slug, &guild);
 
         env::log(format!("Saving guild '{}'", guild.slug,).as_bytes());
+    }
+
+    pub fn get_guild_info(&self, slug: String) -> Option<Guild> {
+        
+        return self.guilds.get(&slug)
+    }
+
+    pub fn join_guild(&mut self, slug: String) {
+
+        //let mut guild = self.guilds.get(&slug);
+
     }
 }
 
@@ -69,7 +84,8 @@ pub enum GuildStatus {
     NotLaunched,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct Guild {
     pub slug: String,
     pub title: String,
@@ -85,5 +101,5 @@ pub struct Guild {
     pub ticker: String,
     pub logo: String,
     pub contract_str: String,
-    pub members: UnorderedMap<String, AccountId>,
+    pub members: Vec<AccountId>,
 }
