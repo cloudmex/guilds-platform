@@ -1,4 +1,20 @@
 guilds-platform
+================
+
+UI Proposal
+============
+
+MAIN SCREEN
+
+![image](https://user-images.githubusercontent.com/54285934/145608241-75612945-2ffb-4c67-a1aa-c58233aa161a.png)
+
+INDIVIDUAL SCREEN FOR EACH GUILD
+
+![image](https://user-images.githubusercontent.com/54285934/145608013-a3563a5b-a734-40b2-9e12-7ff2f05b3a4f.png)
+
+
+
+Development
 ==================
 
 This [React] app was initialized with [create-near-app]
@@ -100,3 +116,4 @@ On Windows, if you're seeing an error containing `EPERM` it may be related to sp
   [NEAR Wallet]: https://wallet.testnet.near.org/
   [near-cli]: https://github.com/near/near-cli
   [gh-pages]: https://github.com/tschaub/gh-pages
+
