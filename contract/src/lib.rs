@@ -1,7 +1,8 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{near_bindgen, env, setup_alloc, AccountId};
 use near_sdk::serde::{Serialize, Deserialize};
-use near_sdk::collections::{UnorderedMap};
+use near_sdk::collections::UnorderedMap;
+use std::collections::HashSet;
 
 setup_alloc!();
 
@@ -56,8 +57,7 @@ impl GuildsPlatform {
             ticker: String::from(&ticker),
             logo: String::from(&logo),
             contract_str: String::from(&contract_str),
-            //Se genera el prefijo con el slug, que es el dato único.
-            members: Vec::new(),
+            members: HashSet::new(),
         };
 
         self.guilds.insert(&slug, &guild);
@@ -66,14 +66,31 @@ impl GuildsPlatform {
     }
 
     pub fn get_guild_info(&self, slug: String) -> Option<Guild> {
-        
-        return self.guilds.get(&slug)
+        self.guilds.get(&slug)
     }
 
     pub fn join_guild(&mut self, slug: String) {
 
-        //let mut guild = self.guilds.get(&slug);
+        //TO DO: Control over joining? Can anyone join?
+        //TO DO: On boarding of people with no account.
+        let mut guild = self.guilds.get(&slug).unwrap();
+        let account_to_insert = env::predecessor_account_id();
 
+        if guild.members.get(&account_to_insert).is_none() {
+            guild.members.insert(account_to_insert);
+            self.guilds.insert(&slug,&guild);
+            env::log(format!("'{}' just joined '{}'!", env::predecessor_account_id(), &slug,).as_bytes());
+        }
+        else{
+            env::log(format!("'{}' is already a member of '{}'!", account_to_insert, &slug,).as_bytes());
+        }
+        //TO DO: Recieve an NFT to confirm joining the guild?
+    }
+
+    pub fn get_num_members(&self, slug: String) -> usize {
+        let guild = self.guilds.get(&slug).unwrap();
+
+        guild.members.len()
     }
 }
 
@@ -101,5 +118,5 @@ pub struct Guild {
     pub ticker: String,
     pub logo: String,
     pub contract_str: String,
-    pub members: Vec<AccountId>,
+    pub members: HashSet<AccountId>,
 }
