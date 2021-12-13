@@ -1,16 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-# Developer note: near.gitignore will be renamed to .gitignore upon project creation
+
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
-
-# build
-/out
-/dist
-
-# keys
-/neardev
 
 # testing
 /coverage
@@ -24,15 +17,9 @@
 .env.development.local
 .env.test.local
 .env.production.local
-/.cache
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-#locks
-yarn.lock
+.eslintcache
 package-lock.json
-
-#rust target
-contract/target
