@@ -21,7 +21,6 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import "assets/css/nucleo-icons.css";
 import "assets/scss/blk-design-system-react.scss";
-import "assets/css/blk-design-system-react.css";
 import "assets/demo/demo.css";
 
 import App from "./App.js";
