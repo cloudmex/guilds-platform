@@ -4,12 +4,14 @@ use near_sdk::serde::{Serialize, Deserialize};
 use near_sdk::collections::UnorderedMap;
 use std::collections::HashSet;
 
+use std::convert::From;
+
 setup_alloc!();
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct GuildsPlatform {
-    guilds: UnorderedMap<String, Guild>,
+    guilds: UnorderedMap<String, UpgradableGuild>,
 }
 
 //Initializing the contract
@@ -21,84 +23,20 @@ impl Default for GuildsPlatform {
     }
   }
 
-#[near_bindgen]
-impl GuildsPlatform {
-    //We require (as of now) every parameter. 
-    //Some of them could be optional in the future if we implement editing.
-    pub fn create_guild(
-        &mut self, 
-        slug: String,
-        title: String,
-        oneliner: String,
-        website: String,
-        app: String,
-        whitepaper: String,
-        twitter: String,
-        telegram: String,
-        discord: String,
-        medium: String,
-        github: String,
-        ticker: String,
-        logo: String,
-        contract_str: String,
-    ){
-        let guild = Guild {
-            slug: String::from(&slug),
-            title: String::from(&title),
-            oneliner: String::from(&oneliner),
-            website: String::from(&website),
-            app: String::from(&app),
-            whitepaper: String::from(&whitepaper),
-            twitter: String::from(&twitter),
-            telegram: String::from(&telegram),
-            discord: String::from(&discord),
-            medium: String::from(&medium),
-            github: String::from(&github),
-            ticker: String::from(&ticker),
-            logo: String::from(&logo),
-            contract_str: String::from(&contract_str),
-            members: HashSet::new(),
-        };
 
-        self.guilds.insert(&slug, &guild);
-
-        env::log(format!("Saving guild '{}'", guild.slug,).as_bytes());
-    }
-
-    pub fn get_guild_info(&self, slug: String) -> Option<Guild> {
-        self.guilds.get(&slug)
-    }
-
-    pub fn join_guild(&mut self, slug: String) {
-
-        //TO DO: Control over joining? Can anyone join?
-        //TO DO: On boarding of people with no account.
-        let mut guild = self.guilds.get(&slug).unwrap();
-        let account_to_insert = env::predecessor_account_id();
-
-        if guild.members.get(&account_to_insert).is_none() {
-            guild.members.insert(account_to_insert);
-            self.guilds.insert(&slug,&guild);
-            env::log(format!("'{}' just joined '{}'!", env::predecessor_account_id(), &slug,).as_bytes());
-        }
-        else{
-            env::log(format!("'{}' is already a member of '{}'!", account_to_insert, &slug,).as_bytes());
-        }
-        //TO DO: Recieve an NFT to confirm joining the guild?
-    }
-
-    pub fn get_num_members(&self, slug: String) -> usize {
-        let guild = self.guilds.get(&slug).unwrap();
-
-        guild.members.len()
-    }
+//Implementation for upgradable contract
+#[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub enum UpgradableGuild {
+    CurrentVersion(Guild),
 }
 
-//Model for Guilds
-#[derive(BorshSerialize, BorshDeserialize)]
-pub enum GuildStatus {
-    Launched,
-    NotLaunched,
+impl From<UpgradableGuild> for Guild {
+    fn from(guild: UpgradableGuild) -> Self {
+        match guild {
+            UpgradableGuild::CurrentVersion(guild) => guild,  
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
@@ -118,5 +56,87 @@ pub struct Guild {
     pub ticker: String,
     pub logo: String,
     pub contract_str: String,
+    pub youtube: String,
     pub members: HashSet<AccountId>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub enum GuildStatus {
+    Launched,
+    NotLaunched,
+}
+
+#[near_bindgen]
+impl GuildsPlatform {
+    pub fn create_guild(
+        &mut self, 
+        slug: String,
+        title: String,
+        oneliner: String,
+        website: String,
+        app: String,
+        whitepaper: String,
+        twitter: String,
+        telegram: String,
+        discord: String,
+        medium: String,
+        github: String,
+        ticker: String,
+        logo: String,
+        youtube: String,
+        contract_str: String,
+    ){
+        let guild = UpgradableGuild::CurrentVersion(Guild {
+            slug: String::from(&slug),
+            title: String::from(&title),
+            oneliner: String::from(&oneliner),
+            website: String::from(&website),
+            app: String::from(&app),
+            whitepaper: String::from(&whitepaper),
+            twitter: String::from(&twitter),
+            telegram: String::from(&telegram),
+            discord: String::from(&discord),
+            medium: String::from(&medium),
+            github: String::from(&github),
+            ticker: String::from(&ticker),
+            logo: String::from(&logo),
+            contract_str: String::from(&contract_str),
+            youtube: String::from(&youtube),
+            members: HashSet::new(),
+        });
+
+        self.guilds.insert(&slug, &guild);
+
+        env::log(format!("Saving guild '{}'", &slug,).as_bytes());
+    }
+
+    pub fn get_guild_info(&self, slug: String) -> Guild {
+        let guild: Guild = self.guilds.get(&slug).unwrap().into();
+
+        return guild
+    }
+
+    pub fn join_guild(&mut self, slug: String) {
+
+        //TO DO: Control over joining? Can anyone join?
+        //TO DO: On boarding of people with no account.
+        let mut guild: Guild = self.guilds.get(&slug).unwrap().into();
+        let account_to_insert = env::predecessor_account_id();
+        
+        if guild.members.get(&account_to_insert).is_none() {
+            guild.members.insert(account_to_insert);
+            self.guilds.insert(&slug,&UpgradableGuild::CurrentVersion(guild));
+            env::log(format!("'{}' just joined '{}'!", env::predecessor_account_id(), &slug,).as_bytes());
+        }
+        else{
+            env::log(format!("'{}' is already a member of '{}'!", account_to_insert, &slug,).as_bytes());
+        }
+        //TO DO: Recieve an NFT to confirm joining the guild?
+    }
+
+    pub fn get_num_members(&self, slug: String) -> usize {
+        let guild: Guild = self.guilds.get(&slug).unwrap().into();
+
+        guild.members.len()
+    }
 }
