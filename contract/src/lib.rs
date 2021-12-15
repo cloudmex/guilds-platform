@@ -139,4 +139,13 @@ impl GuildsPlatform {
 
         guild.members.len()
     }
+
+    pub fn check_if_member(&self, slug: String) -> bool {
+        let guild: Guild = self.guilds.get(&slug).unwrap().into();
+
+        match guild.members.get(&env::predecessor_account_id()) {
+            Some(_member) => true,
+            None => false,
+        }
+    }
 }
