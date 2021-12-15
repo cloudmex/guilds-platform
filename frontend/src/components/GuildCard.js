@@ -14,21 +14,14 @@ export default function GuildCard({guild}) {
   return (
         <Col sm="3" key={`col-${guild.slug}`}>
             <Link to={`profile-page/${guild.slug}`}>
-            <Card className="card-plain">                         
-                {/*<CardHeader>
-                <img
-                    alt={guild.title}
-                    className="img-center img-fluid rounded-circle"
-                    src={guild.logo}
-                /> 
-                </CardHeader>*/}
+            <Card className="card-plain">     
                 <CardBody>
                 
                 <div className="btn-wrapper profile pt-3">
                 <img
                     alt={guild.title}
                     className="img-center img-fluid"
-                    src={guild.logo}
+                    src={`https://github.com/near/ecosystem/blob/main${guild.logo}?raw=true`}
                 />  
                     <h4 className="title">{guild.title}</h4>
                     <p>{`${guild.subscribers} subscribers`}</p>
