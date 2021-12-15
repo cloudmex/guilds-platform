@@ -39,17 +39,31 @@ import Footer from "components/Footer.js";
 
 export default function ProfilePage({match}) {
   const [guildData, setGuild] = React.useState({});
+  const [ joined, setJoined ] = React.useState(undefined);
   //Query to get guild data
   const handleGuilds = async() => {
   
     if(window.walletConnection.isSignedIn()){
       await window.contract.get_guild_info({slug:match.params.slug})
       .then(response => {
+        console.log(response);
         setGuild(response);
       });
     }  
           
   }
+
+  const handleJoinUs = async () => {
+    if(window.walletConnection.isSignedIn()){
+        await window.contract.join_guild({slug:match.params.slug || ''})
+        .then(response => {
+            setJoined(response);
+        }).catch(error => {
+            setJoined(undefined);
+        });   
+    } 
+      
+}
 
   React.useEffect(() => {
   
@@ -99,7 +113,17 @@ export default function ProfilePage({match}) {
                       alt={guildData.title}
                       className="img-center img-fluid rounded-circle"
                       src={`https://github.com/near/ecosystem/blob/main${guildData.logo}?raw=true`}
-                    />             
+                    />  
+                    <Button
+                        className="btn-round"
+                        color="primary"
+                        onClick={handleJoinUs}
+                    >
+                    <i 
+                        className="tim-icons icon-tap-02" 
+                    />
+                    { joined ? <>JOINED</> : <>&nbsp;JOIN US</> }
+                    </Button>           
                   </CardBody>
                 </Card>
               </Col>
@@ -180,36 +204,7 @@ export default function ProfilePage({match}) {
         <div className="section">
           <Container>
             <Row>
-              <Col sm="2">
-                <Card  bg='primary' style={{ width: '25rem' }} className="mb-2">
-                  <CardHeader>
-                    <h2>OWNERS</h2>
-                  </CardHeader>
-                  <CardBody>
-                    {
-                      ['Blabal', 'Dane'].map((member, index) =>{
-                        return(
-                          <>
-                          <Button
-                              className="btn-icon btn-round"
-                              color="twitter"
-                              href={`${member}.near`}
-                              id={`tooltip63922573${index}`}
-                              target="_blank"
-                          >
-                              <i className="tim-icons icon-single-02" />
-                          </Button>
-                          <UncontrolledTooltip delay={0} target={`tooltip63922573${index}`}>
-                              {member}
-                          </UncontrolledTooltip>
-                          </>
-                        )
-                      })
-                    }
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col sm="3"></Col>
+              
               <Col sm="4">
                 <Card  bg='primary' style={{ width: '25rem' }} className="mb-6">
                   <CardHeader>
