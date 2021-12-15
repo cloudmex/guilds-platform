@@ -17,7 +17,7 @@
 */
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import "assets/css/nucleo-icons.css";
 import "assets/scss/blk-design-system-react.scss?v=1.2.0";
@@ -30,16 +30,16 @@ import ProfilePage from "pages/ProfilePage.js";
 window.nearInitPromise = initContract()
   .then(() => {
     ReactDOM.render(
-        <BrowserRouter>
+        <HashRouter>
           <Switch>
-            <Route path="/components" render={(props) => <App {...props} />} />
+            <Route path="/guilds" render={(props) => <App {...props} />} />
             <Route
               path="/profile-page/:slug"
               render={(props) => <ProfilePage {...props} />}
             />
-            <Redirect from="/" to="/components" />
+            <Redirect from="/" to="/guilds" />
           </Switch>
-        </BrowserRouter>
+        </HashRouter>
     ,
     document.getElementById("root")
     )
