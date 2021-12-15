@@ -16,42 +16,42 @@
 
 */
 import GuildCard from "components/GuildCard";
-import React from "react";
-import { 
-  Button, 
+import React, { useEffect, useState } from "react";
+import {  
   Container, 
   Row
 } from "reactstrap";
-
-import { CONTRACT_NAME } from "variables/Constants";
-
-// TODO: Remove after add connection to NEAR
-import { Guilds } from "variables/Predata";
-import { get_guild_info, wallet } from "../services/NearRCP";
+import { GuildsEntities, filterGuilds } from './../services/GuildsEntities';
 
 export default function MainPage() {
+  const [Guilds, setGuilds ] = useState([]);
 
-  if(!wallet.isSignedIn()){
+  // Require to be signed in near
+  /*if(!window.walletConnection.isSignedIn()){
     try {
-      wallet.requestSignIn(CONTRACT_NAME);
+      login();
     } catch (error) {
-      console.log("LOGIN ", error);
+      console.log(error);
     }
-  }
+  }*/
   
   
-  const [guildResponse, setGuildResponse] = React.useState({});
+  
+  const [guildResponse, setGuildResponse] = useState({});
  
-  const handleLogin = async() => {
-    try {
-      const resp = await get_guild_info("near-music-guild");
-      setGuildResponse(resp );
-      console.log(resp, ' **** ', guildResponse);
-    } catch (error) {
-      console.log(error, ' >><<<<<<<ERROR');
-    }
-    
+  const handleMapGuilds = async() => {
+    const data = await GuildsEntities();
+    //Filter slugs
+    //const dataFilter = filterGuilds(data);
+    setGuilds(data);         
   }
+
+  useEffect(() => {
+    handleMapGuilds();
+    
+    console.log( ' **** ', guildResponse);
+    
+  }, [])
   
   return (
     
@@ -64,8 +64,6 @@ export default function MainPage() {
       <div className="space-50" />
       <Container className="text-center">
         <h2 className="title">Find a Guild</h2>
-        <Button color="warning" onClick={handleLogin}>Sign In</Button>
-       
         <Row>
           {
             Guilds.map(guild => {

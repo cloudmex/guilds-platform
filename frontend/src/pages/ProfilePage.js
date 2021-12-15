@@ -31,22 +31,30 @@ import {
 } from "reactstrap";
 
 // core components
-import ExamplesNavbar from "components/ExamplesNavbar.js";
+import Navigationbar from "components/Navigationbar.js";
 import Footer from "components/Footer.js";
 
-// TODO: Remove after add connection to NEAR
-import { Guilds, /*GuildStatus*/ } from "variables/Predata";
 
 //let ps = null;
 
 export default function ProfilePage({match}) {
   const [guildData, setGuild] = React.useState({});
+  //Query to get guild data
+  const handleGuilds = async() => {
+  
+    if(window.walletConnection.isSignedIn()){
+      await window.contract.get_guild_info({slug:match.params.slug})
+      .then(response => {
+        setGuild(response);
+      });
+    }  
+          
+  }
+
   React.useEffect(() => {
-
-    //TODO: Change after add connection to NEAR
-    const getGuild = Guilds.find(guild => guild.slug === match.params.slug);
-    setGuild(getGuild);
-
+  
+    handleGuilds(); 
+    
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
       document.documentElement.classList.remove("perfect-scrollbar-off");
@@ -65,11 +73,11 @@ export default function ProfilePage({match}) {
       }
       document.body.classList.toggle("profile-page");
     };
-  }, [ ]);
+  }, [match.params.slug]);
 
   return (
     <>
-      <ExamplesNavbar />
+      <Navigationbar />
       <div className="wrapper">
         <div className="page-header">
           <img
@@ -90,7 +98,7 @@ export default function ProfilePage({match}) {
                   <img
                       alt={guildData.title}
                       className="img-center img-fluid rounded-circle"
-                      src={guildData.logo}
+                      src={`https://github.com/near/ecosystem/blob/main${guildData.logo}?raw=true`}
                     />             
                   </CardBody>
                 </Card>

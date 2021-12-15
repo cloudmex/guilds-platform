@@ -22,11 +22,17 @@ import {
   Collapse,
   NavbarBrand,
   Navbar,
+  NavItem,
+  Button,
+  NavLink,
+  Nav,
   Container,
   Row,
   Col,
   UncontrolledTooltip,
 } from "reactstrap";
+
+import { login, logout } from './../services/NearRCP';
 
 export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
@@ -71,7 +77,7 @@ export default function IndexNavbar() {
             GUILDS
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand">
-            Designed and Coded by Creative Tim
+            NEAR Guilds
           </UncontrolledTooltip>
           <button
             aria-expanded={collapseOpen}
@@ -108,6 +114,66 @@ export default function IndexNavbar() {
               </Col>
             </Row>
           </div>
+          <Nav navbar>
+            <NavItem className="p-0">
+              <NavLink
+                data-placement="bottom"
+                href="https://twitter.com/CreativeTim"
+                rel="noopener noreferrer"
+                target="_blank"
+                title="Follow us on Twitter"
+              >
+                <i className="fab fa-twitter" />
+                <p className="d-lg-none d-xl-none">Twitter</p>
+              </NavLink>
+            </NavItem>
+            <NavItem className="p-0">
+              <NavLink
+                data-placement="bottom"
+                href="https://www.facebook.com/CreativeTim"
+                rel="noopener noreferrer"
+                target="_blank"
+                title="Like us on Facebook"
+              >
+                <i className="fab fa-facebook-square" />
+                <p className="d-lg-none d-xl-none">Facebook</p>
+              </NavLink>
+            </NavItem>
+            <NavItem className="p-0">
+              <NavLink
+                data-placement="bottom"
+                href="https://www.instagram.com/CreativeTimOfficial"
+                rel="noopener noreferrer"
+                target="_blank"
+                title="Follow us on Instagram"
+              >
+                <i className="fab fa-instagram" />
+                <p className="d-lg-none d-xl-none">Instagram</p>
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              {
+                 !window.walletConnection.isSignedIn() ?
+                 (<Button
+                  className="nav-link d-none d-lg-block"
+                  color="warning"
+                  target="_blank"
+                  onClick={login}
+                >
+                  <i className="tim-icons icon-key-25" /> SignIn
+                </Button>):
+                <Button
+                  className="nav-link d-none d-lg-block"
+                  color="primary"
+                  target="_blank"
+                  onClick={logout}
+                >
+                  <i className="tim-icons icon-key-25" /> LogOut
+                </Button>
+              }
+              
+            </NavItem>
+          </Nav>
         </Collapse>
       </Container>
     </Navbar>

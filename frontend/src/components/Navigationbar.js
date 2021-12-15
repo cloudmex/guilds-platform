@@ -32,7 +32,9 @@ import {
   UncontrolledTooltip,
 } from "reactstrap";
 
-export default function ExamplesNavbar() {
+import { login, logout } from './../services/NearRCP';
+
+export default function Navigationbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
@@ -74,7 +76,7 @@ export default function ExamplesNavbar() {
             GUILDS
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand">
-            Designed and Coded by Creative Tim
+            NEAR Guilds
           </UncontrolledTooltip>
           <button
             aria-expanded={collapseOpen}
@@ -149,25 +151,27 @@ export default function ExamplesNavbar() {
               </NavLink>
             </NavItem>
             <NavItem>
-              <Button
-                className="nav-link d-none d-lg-block"
-                color="primary"
-                target="_blank"
-                href="#"
-              >
-                <i className="tim-icons icon-tap-02" /> JOIN US
-              </Button>
+              {
+                 !window.walletConnection.isSignedIn() ?
+                 (<Button
+                  className="nav-link d-none d-lg-block"
+                  color="warning"
+                  target="_blank"
+                  onClick={login}
+                >
+                  <i className="tim-icons icon-key-25" /> SignIn
+                </Button>):
+                <Button
+                  className="nav-link d-none d-lg-block"
+                  color="primary"
+                  target="_blank"
+                  onClick={logout}
+                >
+                  <i className="tim-icons icon-key-25" /> LogOut
+                </Button>
+              }
+              
             </NavItem>
-            {/*<NavItem>
-              <NavLink tag={Link} to="/">
-                Back to Kit
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://github.com/creativetimofficial/blk-design-system-react/issues">
-                Have an issue?
-              </NavLink>
-            </NavItem>*/}
           </Nav>
         </Collapse>
       </Container>
