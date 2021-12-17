@@ -23,9 +23,17 @@ import PageHeader from "components/PageHeader.js";
 import Footer from "components/Footer.js";
 
 import MainPage from "pages/MainPage";
-
+import { GuildsEntities } from 'services/GuildsEntities';
 export default function App() {
+
+  const handleMapGuilds = async() => {
+    //Get Guilds information
+    await GuildsEntities();
+  }
+
   React.useEffect(() => {
+    // Call method to load all guilds data
+    handleMapGuilds();
     document.body.classList.toggle("index-page");
     // Specify how to clean up after this effect:
     return function cleanup() {

@@ -5,44 +5,17 @@ import {
   Col, 
   Card,
   CardBody,
-  UncontrolledAlert,
   UncontrolledTooltip
 
 } from "reactstrap";
 
+import JoinButton from './JoinButton'
+
 export default function GuildCard({guild}) {
-    const [numSubs, setNumSubs] = React.useState(0);
-    const [ joined, setJoined ] = React.useState(undefined);
-    const [show, setShow] = React.useState(false);
-
-    //Query to get guild subscribers amount
-    const handleSubs = async() => {
-        if(window.walletConnection.isSignedIn()){
-            await window.contract.get_num_members({slug:guild.slug || ''})
-            .then(response => {
-                setNumSubs(response);
-            }).catch(error => {
-                console.log(error);
-            });
-        }        
-    }
-
+    
     React.useEffect(() => {
-       //handleSubs();
+        //getInfoSlug(localStorage.getItem('GUILDS'), guild.slug);
     }, []);
-
-    const handleJoinUs = async () => {
-        setShow(!window.walletConnection.isSignedIn());
-        if(window.walletConnection.isSignedIn()){
-            await window.contract.join_guild({slug:guild.slug || ''})
-            .then(response => {
-                setJoined(response);
-            }).catch(error => {
-                setJoined(undefined);
-            });   
-        } 
-          
-    }
     
     return (
         <Col sm="3" key={`col-${guild.slug}`}>
@@ -55,11 +28,13 @@ export default function GuildCard({guild}) {
                     <img
                         alt={guild.title}
                         className="img-center img-fluid"
+                        width="128"
+                        height="128"
                         src={`https://github.com/near/ecosystem/blob/main${guild.logo}?raw=true`}
                     />  
                 </Link> 
                     <h4 className="title">{guild.title}</h4>
-                    <p>{`${numSubs} subscribers`}</p>
+                    {/*<p>{`${0} subscribers`}</p>*/}
                     <Button
                         className="btn-icon btn-round"
                         color="twitter"
@@ -99,18 +74,7 @@ export default function GuildCard({guild}) {
                     </UncontrolledTooltip>
                 </div>
                 <br/>
-                <Button
-                    className="btn-round"
-                    color="primary"
-                    onClick={handleJoinUs}
-                > 
-                <i 
-                    className="tim-icons icon-tap-02" 
-                />
-                    { joined ? <>JOINED</> : <>&nbsp;JOIN US</> }
-                    
-                </Button>
-                <UncontrolledAlert  color="primary" isOpen={show} onClose={() => setShow(false)} dismissible>Please Login with your Near Account!</UncontrolledAlert >
+                <JoinButton guild={guild}/>
                 </CardBody>
             </Card>
                              

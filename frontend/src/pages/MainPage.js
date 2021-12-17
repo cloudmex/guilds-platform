@@ -21,7 +21,6 @@ import {
   Container, 
   Row
 } from "reactstrap";
-import { GuildsEntities, filterGuilds } from './../services/GuildsEntities';
 
 export default function MainPage() {
   const [Guilds, setGuilds ] = useState([]);
@@ -35,22 +34,8 @@ export default function MainPage() {
     }
   }*/
   
-  
-  
-  const [guildResponse, setGuildResponse] = useState({});
- 
-  const handleMapGuilds = async() => {
-    const data = await GuildsEntities();
-    //Filter slugs
-    //const dataFilter = filterGuilds(data);
-    setGuilds(data);         
-  }
-
-  useEffect(() => {
-    handleMapGuilds();
-    
-    console.log( ' **** ', guildResponse);
-    
+   useEffect(() => {
+    setGuilds(JSON.parse(localStorage.getItem('GUILDS')));    
   }, [])
   
   return (
