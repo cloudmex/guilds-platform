@@ -33,26 +33,35 @@ import {
 // core components
 import Navigationbar from "components/Navigationbar.js";
 import Footer from "components/Footer.js";
+import JoinButton from '../components/JoinButton'
 
+import { getInfoSlug } from './../services/GuildsEntities';
 
 //let ps = null;
 
 export default function ProfilePage({match}) {
   const [guildData, setGuild] = React.useState({});
   const [ joined, setJoined ] = React.useState(undefined);
-  //Query to get guild data
-  const handleGuilds = async() => {
-  
-    if(window.walletConnection.isSignedIn()){
-      await window.contract.get_guild_info({slug:match.params.slug})
-      .then(response => {
-        console.log(response);
-        setGuild(response);
-      });
-    }  
-          
+
+  const [numSubs, setNumSubs] = React.useState(0);
+
+  //Query to get guild subscribers amount
+  const handleSubs = async() => {
+      if(window.walletConnection.isSignedIn()){
+          await window.contract.get_num_members({slug:match.params.slug || ''})
+          .then(response => {
+              setNumSubs(response);
+          }).catch(() => {
+              setNumSubs(0);
+          });
+      }        
   }
 
+  React.useEffect(() => {
+    handleSubs();
+  }, []);
+  
+ 
   const handleJoinUs = async () => {
     if(window.walletConnection.isSignedIn()){
         await window.contract.join_guild({slug:match.params.slug || ''})
@@ -61,14 +70,15 @@ export default function ProfilePage({match}) {
         }).catch(error => {
             setJoined(undefined);
         });   
-    } 
-      
+    }  
 }
 
   React.useEffect(() => {
-  
-    handleGuilds(); 
-    
+    const fulldata = localStorage.getItem('GUILDS');
+    const response = getInfoSlug(JSON.parse(fulldata), match.params.slug);
+    setGuild(response);
+    console.log(joined, ' JOINED');
+        
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
       document.documentElement.classList.remove("perfect-scrollbar-off");
@@ -108,29 +118,22 @@ export default function ProfilePage({match}) {
             <Row>
               <Col className="ml-auto mr-auto" lg="4" md="6">
                 <Card className="card-plain">
-                  <CardBody>
-                  <img
-                      alt={guildData.title}
-                      className="img-center img-fluid rounded-circle"
-                      src={`https://github.com/near/ecosystem/blob/main${guildData.logo}?raw=true`}
-                    />  
-                    <Button
-                        className="btn-round"
-                        color="primary"
-                        onClick={handleJoinUs}
-                    >
-                    <i 
-                        className="tim-icons icon-tap-02" 
-                    />
-                    { joined ? <>JOINED</> : <>&nbsp;JOIN US</> }
-                    </Button>           
+                  <CardHeader>
+                    <img
+                        alt={guildData.title}
+                        className="img-center img-fluid rounded-circle"
+                        src={`https://github.com/near/ecosystem/blob/main${guildData.logo}?raw=true`}
+                      />  
+                  </CardHeader>
+                  <CardBody className="text-center">
+                    <JoinButton guild={guildData}/>          
                   </CardBody>
                 </Card>
               </Col>
               <Col lg="6" md="6">
                 <h6 className="text-on-back">{guildData.title}</h6>
                 <p className="profile-description">
-                  {guildData.description}
+                  {guildData.description || guildData.oneliner}
                 </p>
                 <div className="btn-wrapper profile pt-3 text-right">
                   <Button
@@ -208,11 +211,12 @@ export default function ProfilePage({match}) {
               <Col sm="4">
                 <Card  bg='primary' style={{ width: '25rem' }} className="mb-6">
                   <CardHeader>
-                    <h2>MEMBERS</h2>
+                    <h2>MEMBERS: <strong>{numSubs}</strong></h2>
                   </CardHeader>
                   <CardBody>
                     {
-                      ['John', 'Marc', 'Louis'].map((member, index) =>{
+                      !joined ? '' :
+                       Array(joined).fill('').map((member, index) =>{
                         return(
                           <>
                           <Button
